@@ -54,6 +54,7 @@ parse_args() {
                             output_file=$1
                         else
                             error 'first argument should be an ml file'
+                    fi
                 else
                     error 'too many v files'
                 fi
@@ -87,5 +88,6 @@ echo translate theorems ...
 make opam
 
 echo translate to classes ...
+cd ..
 filenoml = ${hollight_file%".ml"}
 hol2dk to-classes $output_file $filenoml
