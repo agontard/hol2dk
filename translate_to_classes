@@ -1,0 +1,91 @@
+#!/bin/sh
+
+if test -z "$HOL2DK_DIR"
+then
+    echo "HOL2DK_DIR is not set"
+    exit 1
+fi
+
+if test -z "$HOLLIGHT_DIR"
+then
+    echo "HOLLIGHT_DIR is not set"
+    exit 1
+fi
+
+usage() {
+    cat <<__EOF__
+usage: `basename $0` \$hollight_file.ml [\$target.v]
+
+arguments:
+  \$hollight_file.ml: path to an ml file relative to \$HOLLIGHT_DIR
+  \$target.v: desired path for the output (default:theory.v)
+
+effect in the current directory:
+- create a subdirectory named output in which the library will be translated
+- run hol2dk config and then make opam in this subdirectory
+- translate the obtained files into the single file \$target with typeclasses
+__EOF__
+}
+
+error() {
+    echo error: $1
+    echo
+    usage
+    exit 1
+}
+
+parse_args() {
+    if test $# -ne 0; then
+        case $1 in
+            *.ml)
+                if test -z "$hollight_file"
+                then
+                    hollight_file=$1
+                    shift
+                    parse_args $*
+                else
+                    error 'too many ml files'
+                fi;;
+            *.v)
+                if test -z "$output_file"
+                then
+                    if test -n "$hollight_file"
+                        then
+                            output_file=$1
+                        else
+                            error 'first argument should be an ml file'
+                else
+                    error 'too many v files'
+                fi
+                shift
+                parse_args $*;;
+            *)
+                error 'unexpected argument'
+        esac
+    fi
+}
+
+parse_args $*
+if test -z "$hollight_file"
+then
+    error 'missing base hol light file'
+fi
+
+if test -z "$output_file"
+then 
+    output_file="theory.v"
+fi
+
+echo create output directory ...
+mkdir -p output
+
+echo  configure output directory ...
+cd output
+$HOL2DK_DIR/config $hollight_file NA $HOL2DK_DIR/HOL_light.lp $HOL2DK_DIR/HOL_light.v
+
+echo translate theorems ...
+make opam
+
+echo translate to classes ...
+filenoml = ${hollight_file%".ml"}
+hol2dk to-classes $output_file $filenoml

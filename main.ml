@@ -1236,6 +1236,16 @@ and command = function
 
   | "check-mappings"::_ -> wrong_nb_args()
 
+  | "translate-to-classes"::args -> call_script "translate_to_classes" args
+
+  | ["to-classes";p;f] ->
+    Xtoclasses.path := p;
+    Xtoclasses.originalfilename := f;
+    Xtoclasses.get_theory_file();
+    0
+  
+  | "to-classes"::_ -> wrong_nb_args()
+
   (* Single file generation (used neither in b.mk nor in Makefile). *)
   | f::args ->
      let r = range args in
