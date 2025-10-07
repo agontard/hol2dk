@@ -14,13 +14,18 @@ fi
 
 usage() {
     cat <<__EOF__
-usage: `basename $0` \$hollight_file.ml [\$target.v]
+usage: `basename $0` \$libname \$hollight_file.ml [\$target.v]
 
 arguments:
+  \$libname : desired name for the rocq library
   \$hollight_file.ml: path to an ml file relative to \$HOLLIGHT_DIR
   \$target.v: desired path for the output (default:theory.v)
 
+the order of arguments doesn't matter.
+
 effect in the current directory:
+- create a file _CoqProject
+- copy files HOL_Light.lp and HOL_Light.v from the hol2dk repository and compile the latter (depends on mathcomp-classical).
 - create a subdirectory named output in which the library will be translated
 - run hol2dk config and then make opam in this subdirectory
 - translate the obtained files into the single file \$target with typeclasses
@@ -49,19 +54,19 @@ parse_args() {
             *.v)
                 if test -z "$output_file"
                 then
-                    if test -n "$hollight_file"
-                        then
-                            output_file=$1
-                        else
-                            error 'first argument should be an ml file'
-                    fi
+                    output_file=$1
+                    shift
+                    parse_args $*
                 else
                     error 'too many v files'
-                fi
-                shift
-                parse_args $*;;
+                fi;;
             *)
-                error 'unexpected argument'
+                if test -z "$libname" 
+                then
+                    libname=$1
+                else
+                    error "unexpected argument $1"
+                fi;;
         esac
     fi
 }
@@ -77,17 +82,30 @@ then
     output_file="theory.v"
 fi
 
+echo create _CoqProject ...
+echo "-R . $libname ." > _CoqProject
+
+echo copy basic HOL Light logic ...
+cp -f -t . $HOL2DK_DIR/HOL_Light.v $HOL2DK_DIR/HOL_Light.lp
+
 echo create output directory ...
 mkdir -p output
 
 echo  configure output directory ...
 cd output
-$HOL2DK_DIR/config $hollight_file NA $HOL2DK_DIR/HOL_light.lp $HOL2DK_DIR/HOL_light.v
+$HOL2DK_DIR/config $hollight_file $libname ../HOL_Light.lp ../HOL_Light.v mathcomp.classical.classical_sets
 
 echo translate theorems ...
+make clean-v
 make opam
 
 echo translate to classes ...
+filenoml=`basename $hollight_file .ml`
 cd ..
-filenoml = ${hollight_file%".ml"}
 hol2dk to-classes $output_file $filenoml
+
+echo compile HOL_Light.v ...
+rocq compile -q -no-glob -w none -R . $libname HOL_Light.v
+
+echo compile theory file ...
+rocq compile -q -no-glob -w none -R . $libname $output_file
