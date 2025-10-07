@@ -3,6 +3,7 @@
 BASE := $(shell if test -f BASE; then cat BASE; fi)
 ROOT_PATH := $(shell if test -f ROOT_PATH; then cat ROOT_PATH; fi)
 REQUIRING := $(shell if test -f REQUIRING; then cat REQUIRING; fi)
+VOFILES := $(shell if test -f VOFILES; then cat VOFILES; fi)
 
 .PHONY: default
 default: all
@@ -22,7 +23,7 @@ all:
 	$(MAKE) -f $(MAKEFILE) gen-base-spec
 	$(MAKE) -f $(MAKEFILE) rm-spec-files
 
-FILES := $(shell find . -maxdepth 1 -type f -a -name '*.v' -a ! -name '*_spec.v' -a ! -name '*_term_abbrevs*.v' -a ! -name $(BASE)_types.v -a ! -name $(BASE)_terms.v -a ! -name $(BASE)_axioms.v -a ! -name $(BASE)_type_abbrevs.v)
+FILES := $(shell find . -maxdepth 1 -type f -a -name '*.v' -a ! -name '*_spec.v' -a ! -name '*_term_abbrevs*.v' -a ! -name $(BASE)_types.v -a ! -name $(BASE)_terms.v -a ! -name $(BASE)_axioms.v -a ! -name $(BASE)_type_abbrevs.v $(VOFILES:%.vo=-a ! -name %.v))
 
 .PHONY: update-vfiles
 update-vfiles: $(FILES:%=%.update)
@@ -31,7 +32,7 @@ update-vfiles: $(FILES:%=%.update)
 %.update:
 	@echo update $*
 	@sed -i -e 's/^\(Require .*_part_.*_spec\)\.$$/\1_./g' -e "s/^Require .*_spec\.$$/Require Import $(ROOT_PATH).$(BASE)_spec./" -e 's/^\(Require .*_part_.*_spec\)_\.$$/\1./' $*
-	@sed -i -e '$$!N; /^\(.*\)\n\1$$/!P; D' $*
+	@sed -i -e '$$!N; /^\(Require .*\)\n\1$$/!P; D' $*
 
 # https://www.linuxquestions.org/questions/programming-9/how-to-check-duplicate-word-in-line-with-sed-935605/
 .PHONY: update-vo-mk
