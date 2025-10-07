@@ -1238,9 +1238,9 @@ and command = function
 
   | "translate-to-classes"::args -> call_script "translate_to_classes" args
 
-  | ["to-classes";p;f] ->
-    Xtoclasses.path := p;
-    Xtoclasses.originalfilename := f;
+  | ["to-classes";f;n] ->
+    Xtoclasses.theoryfile := f;
+    Xtoclasses.originalfilename := n;
     Xtoclasses.get_theory_file();
     0
   

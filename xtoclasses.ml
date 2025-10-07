@@ -1,5 +1,5 @@
-let path = ref ""
-let outputpath = !path ^ "output/"
+let theoryfile = ref ""
+let outputpath = "output/"
 let originalfilename = ref ""
 let file name = outputpath ^ !originalfilename ^ "_" ^ name ^ ".v"
 let read_file name = In_channel.open_text (file name)
@@ -114,4 +114,4 @@ let translate_theory_to oc =
         | Some l -> print_endline (remake l) ; raise Exit
       in translate_terms_file (read_file "terms") oc
 
-let get_theory_file() = translate_theory_to (Out_channel.open_text (!path ^ "theory.v"))
+let get_theory_file() = translate_theory_to (Out_channel.open_text (!theoryfile))
