@@ -1,7 +1,7 @@
 let path = ref ""
 let outputpath = !path ^ "output/"
 let originalfilename = ref ""
-let file name = outputpath ^ !originalfilename ^ "/" ^ name ^ ".v"
+let file name = outputpath ^ !originalfilename ^ "_" ^ name ^ ".v"
 let read_file name = In_channel.open_text (file name)
 
 let str_to_list s = List.init (String.length s) (String.get s)
