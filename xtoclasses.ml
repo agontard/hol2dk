@@ -9,7 +9,8 @@ let str_of_list l = List.fold_left String.cat "" (List.map (String.make 1) l)
 
 (* a list of functions that should still be used with @ *)
 let at_exceptions = List.map str_to_list
-  [ "all" ; "ex" ; "ex1" ; "ε" ; "COND" ; "REP_prod" ; "ABS_prod" ; "pair" ; "mk_pair" ; "fst" ; "snd" ; "ONTO" ; "ONE_ONE" ; "eq" ]
+  [ "all" ; "ex" ; "ex1" ; "ε" ; "COND" ; "REP_prod" ; "ABS_prod" ;
+  "pair" ; "mk_pair" ; "fst" ; "snd" ; "ONTO" ; "ONE_ONE" ; "eq" ]
 let clear_implicits s = let open String in
   let n = length s - 1 in
   if s.[0] = '{' then "(" ^ sub s 1 n else
