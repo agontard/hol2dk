@@ -1247,8 +1247,7 @@ and command = function
     Xmapcheck.set_encoding e ;
     Xmapcheck.set_mapping m ;
     Xmapcheck.requiring := String.concat " " rq ;
-    Xmapcheck.generate_check_file() ;
-    0
+    Xmapcheck.generate_check_file()
 
   | "check-mappings"::_ -> wrong_nb_args()
 
@@ -1257,8 +1256,7 @@ and command = function
   | ["to-classes";f;n] ->
     Xtoclasses.theoryfile := f;
     Xtoclasses.originalfilename := n;
-    Xtoclasses.get_theory_file();
-    0
+    Xtoclasses.get_theory_file()
   
   | "to-classes"::_ -> wrong_nb_args()
 
